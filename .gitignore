@@ -1,9 +1,11 @@
 .DS_Store
 
 ###> symfony/framework-bundle ###
-/.env.local
-/.env.local.php
-/.env.*.local
+.env.local
+.env.local.php
+.env.*.local
+.env.dev
+.env.test
 /config/secrets/prod/prod.decrypt.private.php
 /public/bundles/
 /var/
