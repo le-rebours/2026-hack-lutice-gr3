@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement (simulation){% endblock %}
+
+{% block body %}
+<div style="max-width: 520px; margin: 40px auto;">
+  <h1>Paiement simulé</h1>
+
+  {% for message in app.flashes('error') %}
+    <div style="padding:10px; background:#ffe1e1; margin:10px 0;">{{ message }}</div>
+  {% endfor %}
+
+  <form id="payment-form" method="post" action="{{ path('subscription_payment_confirm', {id: subscription.id}) }}">
+    <div id="card-element" style="padding:12px; border:1px solid #ccc; border-radius:6px;"></div>
+    <div id="card-errors" style="color:#b00020; margin-top:10px;"></div>
+
+    <button id="submit" type="button" style="margin-top:16px; padding:10px 14px;">
+      Valider le paiement
+    </button>
+  </form>
+</div>
+<script>
+  document.addEventListener('turbo:load', () => {
+    if (typeof Stripe === 'undefined') {
+      console.error('Stripe.js non chargé.');
+      return;
+    }
+
+    const stripe = Stripe("{{ stripePublicKey }}");
+    const elements = stripe.elements();
+
+    const cardElementDiv = document.getElementById('card-element');
+    if (!cardElementDiv) return;
+
+    cardElementDiv.innerHTML = '';
+    const card = elements.create('card');
+    card.mount('#card-element');
+
+    const btn = document.getElementById('submit');
+    const errorDiv = document.getElementById('card-errors');
+    const form = document.getElementById('payment-form');
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      errorDiv.textContent = '';
+
+      try {
+        const { error, paymentIntent } = await stripe.confirmCardPayment("{{ clientSecret }}", {
+          payment_method: { card: card }
+        });
+
+        if (error) {
+          errorDiv.textContent = error.message || 'Erreur de paiement.';
+          btn.disabled = false;
+          return;
+        }
+
+        if (paymentIntent && paymentIntent.status === 'succeeded') {
+          if (form.requestSubmit) {
+            form.requestSubmit();
+          } else {
+            HTMLFormElement.prototype.submit.call(form);
+          }
+          return;
+        }
+
+        errorDiv.textContent = 'Paiement non validé.';
+        btn.disabled = false;
+
+      } catch (e) {
+        console.error(e);
+        errorDiv.textContent = 'Erreur JS pendant la confirmation Stripe.';
+        btn.disabled = false;
+      }
+    }, { once: true });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Offres - LUTICE{% endblock %}
+
+{% block body %}
+  <h1>Offres LUTICE</h1>
+  <p class="muted">Choisis ton forfait. La souscription nécessite une connexion.</p>
+
+  <div class="cards">
+    {% for key, offer in offers %}
+      <div class="card">
+        <h2>{{ offer.label }}</h2>
+        <div class="price">
+          {% if offer.price_month is null %}
+            À définir
+          {% else %}
+            {{ offer.price_month }} €/mois
+          {% endif %}
+        </div>
+
+        <p class="muted"><strong>Instance :</strong> {{ offer.instance }}</p>
+        <p class="muted"><strong>Utilisateurs :</strong> {{ offer.users_limit is null ? 'À définir' : offer.users_limit }}</p>
+        <p class="muted"><strong>Stockage :</strong> {{ offer.storage_gb }} Go</p>
+
+        <ul>
+          {% for f in offer.features %}
+            <li>{{ f }}</li>
+          {% endfor %}
+        </ul>
+
+        <a class="cta" href="{{ path('app_subscription_new', { offer: key }) }}">Souscrire</a>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

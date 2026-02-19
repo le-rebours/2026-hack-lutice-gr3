@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard - LUTICE{% endblock %}
+
+{% block body %}
+  <h1>Dashboard</h1>
+  <p class="muted">Connecté : {{ app.user.email }}</p>
+
+  {% if subscriptions is empty %}
+    <div class="card">
+      <p>Vous n’avez encore aucune souscription.</p>
+      <a class="cta" href="{{ path('app_offer_index') }}">Voir les offres</a>
+    </div>
+  {% else %}
+    <div class="table-card">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Offre</th>
+            <th>Domaine</th>
+            <th>Statut</th>
+            <th>Créée le</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in subscriptions %}
+            <tr>
+              <td>
+                {% if s.offerType %}
+                  {{ s.offerType.value }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+
+              <td>
+                {% if s.domain %}
+                  <code>{{ s.domain }}</code>
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+
+              <td>
+                {% set st = s.status ? s.status.value : 'pending' %}
+
+                <span class="status-badge status-{{ st }}">
+                  {{ st }}
+                </span>
+              </td>
+
+              <td>
+                {% if s.createdAt %}
+                  {{ s.createdAt|date('d/m/Y H:i') }}
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+{% endblock %}

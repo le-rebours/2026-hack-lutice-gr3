@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8">
+    <title>{% block title %}LUTICE{% endblock %}</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <link rel="stylesheet" href="{{ asset('assets/styles/app.css') }}">
+
+    {% block stylesheets %}{% endblock %}
+
+    {% block javascripts %}
+      {% block importmap %}{{ importmap('app') }}{% endblock %}
+    {% endblock %}
+  </head>
+
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <a class="brand" href="{{ path('app_home') }}">LUTICE</a>
+
+        <nav class="nav">
+          <a class="nav-link" href="{{ path('app_home') }}">Home</a>
+          <a class="nav-link" href="{{ path('app_offer_index') }}">Offres</a>
+
+          {% if app.user %}
+            <a class="nav-link" href="{{ path('app_dashboard_index') }}">Dashboard</a>
+            <a class="nav-btn" href="{{ path('app_logout') }}">Logout</a>
+          {% else %}
+            <a class="nav-btn" href="{{ path('app_login') }}">Login</a>
+          {% endif %}
+        </nav>
+      </div>
+    </header>
+
+    <main class="container page">
+      {% for message in app.flashes('success') %}
+        <div class="alert alert-success">{{ message }}</div>
+      {% endfor %}
+      {% for message in app.flashes('error') %}
+        <div class="alert alert-danger">{{ message }}</div>
+      {% endfor %}
+
+      {% block body %}{% endblock %}
+    </main>
+  </body>
+</html>

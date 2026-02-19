@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Souscription - LUTICE{% endblock %}
+
+{% block body %}
+  <div class="subscription-wrapper">
+
+    <div class="subscription-card">
+
+      <h1>Finaliser votre souscription</h1>
+
+      <div class="offer-summary">
+        <span class="badge">Offre choisie</span>
+        <h2>
+          {% if offerKey == 'start2' %}
+            Start 2
+          {% elseif offerKey == 'start3' %}
+            Start 3
+          {% else %}
+            —
+          {% endif %}
+        </h2>
+      </div>
+
+      {{ form_errors(form) }}
+
+      {{ form_start(form, { attr: { class: 'subscription-form' } }) }}
+        <div class="form-group">
+          {{ form_label(form.clientName) }}
+          {{ form_widget(form.clientName, { attr: { class: 'form-control' } }) }}
+          {{ form_errors(form.clientName) }}
+        </div>
+
+        <div class="form-group">
+          {{ form_label(form.clientEmail) }}
+          {{ form_widget(form.clientEmail, { attr: { class: 'form-control' } }) }}
+          {{ form_errors(form.clientEmail) }}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-full">
+          Continuer vers le paiement
+        </button>
+      {{ form_end(form) }}
+
+    </div>
+
+  </div>
+{% endblock %}

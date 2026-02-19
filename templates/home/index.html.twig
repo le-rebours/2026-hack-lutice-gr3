@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home - LUTICE{% endblock %}
+
+{% block body %}
+  <section class="hero">
+    <h1>Déployez votre Greenlight en quelques minutes</h1>
+    <p>
+      LUTICE automatise l’onboarding : choix d’offre → paiement simulé → provisionnement → déploiement → URL prête.
+    </p>
+
+    <div class="actions">
+      <a class="btn btn-primary" href="{{ path('app_offer_index') }}">Voir les offres</a>
+
+      {% if app.user %}
+        <a class="btn btn-secondary" href="{{ path('app_dashboard_index') }}">Aller au dashboard</a>
+      {% else %}
+        <a class="btn btn-secondary" href="{{ path('app_login') }}">Se connecter</a>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}
