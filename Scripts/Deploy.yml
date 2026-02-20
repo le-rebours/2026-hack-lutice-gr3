@@ -1,0 +1,70 @@
+- name: Installation de Greenlight v3, Docker et Nginx
+  hosts: all
+  become: yes
+  vars:
+    app_dir: /root/lutice-app
+  tasks:
+    - name: Nettoyer les conflits et installer Docker/Nginx
+      shell: |
+        set -e
+        apt-get purge -y docker-ce docker-ce-cli containerd.io docker.io docker-compose-v2
+        apt-get autoremove -y || true
+        dpkg --configure -a || true
+        rm -rf /var/lib/dpkg/lock-frontend /var/lib/apt/lists/lock || true
+        apt-get update
+        apt-get install -y docker.io docker-compose-v2 nginx
+      args:
+        executable: /bin/bash
+
+    - name: Créer le dossier pour l'application
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Déployer le fichier .env
+      template:
+        src: template_greenlight.env.j2
+        dest: "{{ app_dir }}/.env"
+
+    - name: Déployer le fichier docker-compose.yml
+      template:
+        src: docker-compose.yml.j2
+        dest: "{{ app_dir }}/docker-compose.yml"
+
+    - name: Définir la limite de stockage
+      set_fact:
+        storage_limit: "{{ '200' if (offer_type is defined and offer_type == 'start3') else '50' }}"
+
+    - name: Inscrire la limite dans le fichier .env
+      lineinfile:
+        path: "{{ app_dir }}/.env"
+        regexp: '^RECORDING_QUOTA='
+        line: "RECORDING_QUOTA={{ storage_limit }}"
+        create: yes
+
+    - name: Configurer Nginx
+      template:
+        src: nginx_greenlight.conf.j2
+        dest: /etc/nginx/sites-available/greenlight
+
+    - name: Activer la configuration Nginx
+      file:
+        src: /etc/nginx/sites-available/greenlight
+        dest: /etc/nginx/sites-enabled/greenlight
+        state: link
+        force: yes
+
+    - name: Supprimer la config par défaut
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+
+    - name: Lancer les conteneurs
+      shell: docker compose up -d
+      args:
+        chdir: "{{ app_dir }}"
+
+    - name: Migration et Création Admin
+      command: docker exec lutice-app bundle exec rake db:migrate
+      ignore_errors: yes

@@ -1,0 +1,2 @@
+[vps]
+51.15.202.63 ansible_user=root
